@@ -51,9 +51,16 @@ const TrainDetails = () => {
             <Link to="/trains" className="text-primary-600 hover:text-primary-700 mb-6 inline-block font-medium">&larr; Back to Search</Link>
             
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-                <div className="bg-primary-600 p-6 text-white flex justify-between items-center">
+                <div className="bg-primary-600 p-6 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold mb-1">{train.trainName}</h1>
+                        <div className="flex items-center gap-3 mb-1 flex-wrap">
+                            <h1 className="text-3xl font-bold">{train.trainName}</h1>
+                            {train.trainType && (
+                                <span className={`px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider ${train.trainType === 'SHATABDI' ? 'bg-indigo-100 text-indigo-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                                    {train.trainType}
+                                </span>
+                            )}
+                        </div>
                         <p className="text-primary-100 font-medium">Train No. {train.trainNumber}</p>
                     </div>
                 </div>
@@ -63,53 +70,70 @@ const TrainDetails = () => {
                         <div>
                              <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Route Information</h3>
                              <div className="space-y-4 relative">
-                                <div className="flex gap-4">
-                                     <div className="flex flex-col items-center">
-                                         <div className="w-3 h-3 rounded-full bg-primary-500 mt-1.5" />
-                                         <div className="w-0.5 h-12 bg-gray-200 my-1" />
-                                     </div>
-                                     <div>
-                                         <p className="font-bold text-lg text-gray-900">{train.source}</p>
-                                         <p className="text-gray-500 text-sm">Departure: <span className="font-semibold text-gray-700">{train.departureTime}</span></p>
-                                     </div>
-                                </div>
-                                 <div className="flex gap-4">
-                                     <div className="flex flex-col items-center">
-                                         <div className="w-3 h-3 rounded-full bg-red-500 mt-1.5" />
-                                     </div>
-                                     <div>
-                                         <p className="font-bold text-lg text-gray-900">{train.destination}</p>
-                                         <p className="text-gray-500 text-sm">Arrival: <span className="font-semibold text-gray-700">{train.arrivalTime}</span></p>
-                                     </div>
-                                </div>
+                                {train.routes && train.routes.length > 0 ? (
+                                    train.routes.map((route, index) => (
+                                        <div key={index} className="flex gap-4 relative">
+                                             <div className="flex flex-col items-center relative z-10 w-4">
+                                                 <div className={`w-3 h-3 rounded-full shadow-sm mt-1.5 ${index === 0 ? 'bg-primary-500' : index === train.routes.length - 1 ? 'bg-red-500' : 'bg-white border-2 border-gray-400'}`} />
+                                                 {index < train.routes.length - 1 && <div className="absolute top-4 w-0.5 h-full bg-gray-300 left-1.5" />}
+                                             </div>
+                                             <div className="pb-6">
+                                                 <p className="font-bold text-lg text-gray-900">{route.stationName}</p>
+                                                 {index === 0 && <p className="text-gray-500 text-sm">Departure: <span className="font-semibold text-gray-700">{train.departureTime}</span></p>}
+                                                 {index === train.routes.length - 1 && <p className="text-gray-500 text-sm">Arrival: <span className="font-semibold text-gray-700">{train.arrivalTime}</span></p>}
+                                                 {index !== 0 && index !== train.routes.length - 1 && <p className="text-gray-400 text-xs uppercase tracking-wider font-semibold">Intermediate Stop</p>}
+                                             </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <>
+                                        <div className="flex gap-4">
+                                             <div className="flex flex-col items-center">
+                                                 <div className="w-3 h-3 rounded-full bg-primary-500 mt-1.5" />
+                                                 <div className="w-0.5 h-12 bg-gray-200 my-1" />
+                                             </div>
+                                             <div>
+                                                 <p className="font-bold text-lg text-gray-900">{train.source}</p>
+                                                 <p className="text-gray-500 text-sm">Departure: <span className="font-semibold text-gray-700">{train.departureTime}</span></p>
+                                             </div>
+                                        </div>
+                                         <div className="flex gap-4">
+                                             <div className="flex flex-col items-center">
+                                                 <div className="w-3 h-3 rounded-full bg-red-500 mt-1.5" />
+                                             </div>
+                                             <div>
+                                                 <p className="font-bold text-lg text-gray-900">{train.destination}</p>
+                                                 <p className="text-gray-500 text-sm">Arrival: <span className="font-semibold text-gray-700">{train.arrivalTime}</span></p>
+                                             </div>
+                                        </div>
+                                    </>
+                                )}
                              </div>
 
-                            <div className="pt-4 border-t border-gray-100 flex items-center justify-between mt-8">
-                                <div>
-                                    <p className="text-sm text-gray-500 mb-1">Ticket Price</p>
-                                    <p className="text-2xl font-bold text-gray-900">₹{train.price || 500}</p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500 mb-1">Availability</p>
-                                    <div className="flex items-center gap-2">
-                                        <div className={`w-2 h-2 rounded-full ${train.availableSeats > 0 ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                                        <span className={`font-semibold ${train.availableSeats > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                            {train.availableSeats > 0 ? `${train.availableSeats} Seats Available` : 'Waitlisted'}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Availability</h3>
-                            <div className="bg-gray-50 p-4 rounded-lg flex items-center gap-4">
-                                <div className={`p-3 rounded-full ${train.availableSeats > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                                    <Users className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <p className="text-2xl font-bold text-gray-900">{train.availableSeats} <span className="text-base font-normal text-gray-500">tickets available</span></p>
-                                    <p className="text-sm text-gray-500">Total capacity: {train.totalSeats}</p>
+                            <div className="pt-4 border-t border-gray-100 mt-8">
+                                <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Available Classes</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {train.classes && train.classes.map(cls => (
+                                        <div key={cls.classId} className={`p-4 rounded-xl border-2 ${cls.availableSeats > 0 ? 'border-primary-100 bg-primary-50' : 'border-gray-100 bg-gray-50'} transition-all`}>
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className="font-bold text-lg text-gray-900">
+                                                    {(() => {
+                                                        const titles = { '1A': '1st Class AC (1A)', '2A': '2nd Class AC (2A)', '3A': '3rd Class AC (3A)', 'CC': 'AC Chair Car (CC)', 'SL': 'Sleeper (SL)', '2S': 'Second Sitting (2S)', 'GN': 'General (GN)' };
+                                                        return titles[cls.classType] || cls.classType;
+                                                    })()}
+                                                </span>
+                                                <span className="font-black text-primary-700">₹{cls.price}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between mt-3">
+                                                <div className="flex items-center gap-1.5">
+                                                    <Users className={`w-4 h-4 ${cls.availableSeats > 0 ? 'text-green-600' : 'text-red-500'}`} />
+                                                    <span className={`text-sm font-semibold ${cls.availableSeats > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                        {cls.availableSeats > 0 ? `${cls.availableSeats} Available` : 'Waitlisted'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>

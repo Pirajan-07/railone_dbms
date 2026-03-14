@@ -13,6 +13,7 @@ import MyBookings from './pages/MyBookings';
 import AdminDashboard from './pages/AdminDashboard';
 import Profile from './pages/Profile';
 import ViewTicket from './pages/ViewTicket';
+import PNRStatus from './pages/PNRStatus';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/trains" element={<TrainList />} />
+            <Route path="/pnr" element={<PNRStatus />} />
             <Route path="/train/:id" element={<TrainDetails />} />
             <Route path="/book/:id" element={<BookTicket />} />
             <Route path="/my-bookings" element={<MyBookings />} />

@@ -93,7 +93,7 @@ const AdminDashboard = () => {
 
     if (loading) return <div className="p-8 text-center text-xl">Loading Admin Dashboard...</div>;
 
-    const totalTicketsSold = allBookings.filter(b => b.status === 'Booked').length;
+    const totalTicketsSold = allBookings.filter(b => b.status === 'Confirmed').length;
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-8">
@@ -251,7 +251,7 @@ const AdminDashboard = () => {
                                                 <p className="text-xs font-bold text-primary-600">₹{b.totalPrice || 500}</p>
                                             </td>
                                             <td className="p-3">
-                                                <span className={`px-2 py-1 text-xs font-bold rounded-full ${b.status === 'Booked' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                <span className={`px-2 py-1 text-xs font-bold rounded-full ${b.status === 'Confirmed' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                                     {b.status}
                                                 </span>
                                             </td>

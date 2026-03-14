@@ -33,17 +33,39 @@ const TicketCard = ({ bookingDetails }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                     {/* Passenger Info */}
                     <div className="space-y-4">
-                        <div>
-                            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Passenger Name</p>
-                            <p className="text-lg font-bold text-gray-900">{bookingDetails.userId?.name || 'Passenger'}</p>
-                        </div>
+                        {bookingDetails.passengers && bookingDetails.passengers.length > 0 ? (
+                            <div>
+                                <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Passengers</p>
+                                <ul className="space-y-1">
+                                    {bookingDetails.passengers.map((p, idx) => (
+                                        <li key={idx} className="text-sm font-bold text-gray-900 flex justify-between border-b border-gray-100 pb-1">
+                                            <span>{p.name} <span className="text-gray-500 font-normal text-xs ml-1">({p.age}, {p.gender})</span></span>
+                                            {bookingDetails.seatNumbers && bookingDetails.seatNumbers[idx] && (
+                                                <span className="text-primary-600 font-black text-xs">Seat {bookingDetails.seatNumbers[idx]}</span>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ) : (
+                            <div>
+                                <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Passenger Name</p>
+                                <p className="text-lg font-bold text-gray-900">{bookingDetails.userId?.name || 'Passenger'}</p>
+                            </div>
+                        )}
                         <div>
                             <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Train</p>
                             <p className="text-lg font-bold text-gray-900">{train?.trainName} <span className="text-gray-500 text-sm ml-2">({train?.trainNumber})</span></p>
                         </div>
                         <div>
                             <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Travel Class</p>
-                            <p className="text-lg font-bold text-gray-900">AC First Class (1A)</p>
+                            <p className="text-lg font-bold text-gray-900">
+                                {(() => {
+                                    const st = bookingDetails.classType || 'SL';
+                                    const titles = { '1A': '1st Class AC (1A)', '2A': '2nd Class AC (2A)', '3A': '3rd Class AC (3A)', 'CC': 'AC Chair Car (CC)', 'SL': 'Sleeper (SL)', '2S': 'Second Sitting (2S)', 'GN': 'General (GN)' };
+                                    return titles[st] || st;
+                                })()}
+                            </p>
                         </div>
                     </div>
 

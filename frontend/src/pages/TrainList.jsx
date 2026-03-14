@@ -52,9 +52,16 @@ const TrainList = () => {
                     {trains.map(train => (
                         <div key={train._id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 border border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
                             <div className="flex-1 w-full relative">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h2 className="text-2xl font-bold text-primary-600">{train.trainName}</h2>
-                                    <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm font-semibold">#{train.trainNumber}</span>
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                                    <div className="flex items-center gap-3 flex-wrap">
+                                        <h2 className="text-2xl font-bold text-primary-600">{train.trainName}</h2>
+                                        {train.trainType && (
+                                            <span className={`px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider ${train.trainType === 'SHATABDI' ? 'bg-indigo-100 text-indigo-800 border border-indigo-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200'}`}>
+                                                {train.trainType}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm font-semibold self-start sm:self-auto border border-gray-200">#{train.trainNumber}</span>
                                 </div>
                                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 text-gray-600 relative">
                                     <div className="flex items-start gap-2">
@@ -87,6 +94,10 @@ const TrainList = () => {
                                     <span className={train.availableSeats > 0 ? 'text-green-600' : 'text-red-500'}>
                                         {train.availableSeats} Seats Available
                                     </span>
+                                </div>
+                                <div className="flex items-center gap-1 mt-1 mb-2">
+                                    <span className="text-gray-500 text-sm">Starts at</span>
+                                    <span className="text-lg font-bold text-gray-900">₹{train.price}</span>
                                 </div>
                                 <Link 
                                     to={`/train/${train._id}`}

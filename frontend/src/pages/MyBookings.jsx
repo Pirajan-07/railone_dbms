@@ -76,7 +76,7 @@ const MyBookings = () => {
                                     CANCELLED
                                 </div>
                             )}
-                            {booking.status === 'Booked' && (
+                            {booking.status === 'Confirmed' && (
                                 <div className="absolute top-0 right-0 bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-bl-lg">
                                     CONFIRMED
                                 </div>
@@ -125,7 +125,7 @@ const MyBookings = () => {
                                     >
                                         <Eye className="w-4 h-4" /> View Ticket
                                     </button>
-                                    {booking.status === 'Booked' && (
+                                    {booking.status === 'Confirmed' && (
                                         <button 
                                             onClick={() => handleCancel(booking._id)}
                                             className="text-red-600 hover:text-red-700 font-medium flex items-center gap-1 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded transition-colors"

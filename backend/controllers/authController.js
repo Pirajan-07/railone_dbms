@@ -1,8 +1,8 @@
-const User = require('../models/User');
+const { db } = require('../config/db');
 const jwt = require('jsonwebtoken');
 
-const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
+const generateToken = (user_id) => {
+    return jwt.sign({ id: user_id }, process.env.JWT_SECRET, {
         expiresIn: '30d',
     });
 };
@@ -13,27 +13,36 @@ const generateToken = (id) => {
 const registerUser = async (req, res) => {
     try {
         const { name, email, password, phone } = req.body;
-        const userExists = await User.findOne({ email });
+        
+        // Use promise wrapper for queries
+        const query = (sql, params) => new Promise((resolve, reject) => {
+            db.query(sql, params, (err, result) => {
+                if (err) reject(err);
+                else resolve(result);
+            });
+        });
 
-        if (userExists) {
+        // 1. Check if user exists
+        const users = await query('SELECT * FROM users WHERE email = ?', [email]);
+        
+        if (users.length > 0) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const user = await User.create({
-            name,
-            email,
-            password,
-            phone,
-        });
+        // Note: For simplicity, storing plain password. Use bcrypt to hash passwords in production.
+        const insertResult = await query(
+            'INSERT INTO users (name, email, password, phone) VALUES (?, ?, ?, ?)',
+            [name, email, password, phone]
+        );
 
-        if (user) {
+        if (insertResult.insertId) {
             res.status(201).json({
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                isAdmin: user.isAdmin,
-                token: generateToken(user._id),
+                _id: insertResult.insertId,
+                name: name,
+                email: email,
+                phone: phone,
+                isAdmin: false, // No admin column created per user prompt, default false
+                token: generateToken(insertResult.insertId),
             });
         } else {
             res.status(400).json({ message: 'Invalid user data' });
@@ -49,16 +58,27 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email });
+        
+        const query = (sql, params) => new Promise((resolve, reject) => {
+            db.query(sql, params, (err, result) => {
+                if (err) reject(err);
+                else resolve(result);
+            });
+        });
 
-        if (user && (await user.matchPassword(password))) {
+        // Use direct password comparison per user's prompt (SELECT * FROM users WHERE email=? AND password=?) 
+        // Note: Compare securely using bcrypt.compare in production if passwords were hashed.
+        const users = await query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password]);
+
+        if (users.length > 0) {
+            const user = users[0];
             res.json({
-                _id: user._id,
+                _id: user.user_id,
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
-                isAdmin: user.isAdmin,
-                token: generateToken(user._id),
+                isAdmin: false,
+                token: generateToken(user.user_id),
             });
         } else {
             res.status(401).json({ message: 'Invalid email or password' });
@@ -73,25 +93,39 @@ const loginUser = async (req, res) => {
 // @access  Private
 const updateUserProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id);
+        // req.user comes from authMiddleware
+        const userId = req.user.user_id || req.user._id; 
+        
+        const query = (sql, params) => new Promise((resolve, reject) => {
+            db.query(sql, params, (err, result) => {
+                if (err) reject(err);
+                else resolve(result);
+            });
+        });
 
-        if (user) {
-            user.name = req.body.name || user.name;
-            user.email = req.body.email || user.email;
-            user.phone = req.body.phone || user.phone;
-            if (req.body.password) {
-                user.password = req.body.password;
-            }
+        const users = await query('SELECT * FROM users WHERE user_id = ?', [userId]);
 
-            const updatedUser = await user.save();
+        if (users.length > 0) {
+            const user = users[0];
+            
+            // Allow update of fields
+            const newName = req.body.name || user.name;
+            const newEmail = req.body.email || user.email;
+            const newPhone = req.body.phone || user.phone;
+            const newPassword = req.body.password || user.password; // Simple plaintext replacement
+
+            await query(
+                'UPDATE users SET name = ?, email = ?, phone = ?, password = ? WHERE user_id = ?',
+                [newName, newEmail, newPhone, newPassword, userId]
+            );
 
             res.json({
-                _id: updatedUser._id,
-                name: updatedUser.name,
-                email: updatedUser.email,
-                phone: updatedUser.phone,
-                isAdmin: updatedUser.isAdmin,
-                token: generateToken(updatedUser._id),
+                _id: userId,
+                name: newName,
+                email: newEmail,
+                phone: newPhone,
+                isAdmin: false,
+                token: generateToken(userId),
             });
         } else {
             res.status(404).json({ message: 'User not found' });

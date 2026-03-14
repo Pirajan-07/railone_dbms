@@ -21,6 +21,7 @@ const Navbar = () => {
           </Link>
           <div className="flex items-center space-x-6">
             <Link to="/trains" className="text-white hover:text-[#dbeafe] transition-colors">Search Trains</Link>
+            <Link to="/pnr" className="text-white hover:text-[#dbeafe] transition-colors">PNR Status</Link>
             {userInfo ? (
               <>
                 <Link to="/my-bookings" className="text-white hover:text-[#dbeafe] transition-colors">My Bookings</Link>
